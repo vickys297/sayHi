@@ -14,7 +14,6 @@ internal val TAG = RepositoryListViewModel::class.java.simpleName
 
 class RepositoryListViewModel(private val repository: AppRepository) : ViewModel() {
 
-    val mutableVideoItem = MutableLiveData<VideoModelData>()
 
     fun getMediaList(): Flow<PagingData<Datum>> {
         return repository.getMediaListRepository().cachedIn(viewModelScope)

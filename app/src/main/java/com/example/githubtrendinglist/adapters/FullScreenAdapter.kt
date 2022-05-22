@@ -21,7 +21,7 @@ class FullScreenAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) 
 
     fun updateDataSet(newDataSet: List<FullScreenMediaViewFragment>?) {
         newDataSet?.let {
-            val lastPosition = fragmentList.size - 1
+            val lastPosition = fragmentList.size
             fragmentList.addAll(it)
             notifyItemRangeInserted(lastPosition, it.size)
         }

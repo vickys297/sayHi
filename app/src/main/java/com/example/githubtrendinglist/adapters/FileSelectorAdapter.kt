@@ -2,100 +2,80 @@ package com.example.githubtrendinglist.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.githubtrendinglist.databinding.RecyclerFileImageListItemBinding
-import com.example.githubtrendinglist.databinding.RecyclerFileTitleItemBinding
-import com.example.githubtrendinglist.model.GalleryListingModel
+import com.example.githubtrendinglist.databinding.RecyclerFileMediaListItemBinding
+import com.example.githubtrendinglist.model.GalleryModel
+import com.example.githubtrendinglist.utils.AppInterface
 
-internal const val VIEW_TITLE = 0
-internal const val VIEW_MEDIA = 1
 
-class FileSelectorAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FileSelectorAdapter(val galleyItemCallback: AppInterface.GalleryOnItemSelect) :
+    PagingDataAdapter<GalleryModel, RecyclerView.ViewHolder>(DiffUtil) {
 
-    var galleryListingModel = arrayListOf<GalleryListingModel>()
+    companion object {
+        val DiffUtil = object : DiffUtil.ItemCallback<GalleryModel>() {
+            override fun areItemsTheSame(
+                oldItem: GalleryModel,
+                newItem: GalleryModel
+            ): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(
+                oldItem: GalleryModel,
+                newItem: GalleryModel
+            ): Boolean {
+                return oldItem == newItem
+            }
+
+        }
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        when (viewType) {
-            VIEW_TITLE -> {
-                return TitleViewHolder(
-                    RecyclerFileTitleItemBinding.inflate(
-                        LayoutInflater.from(parent.context),
-                        parent,
-                        false
-                    )
-                )
-            }
-            VIEW_MEDIA -> {
-                return MediaViewHolder(
-                    RecyclerFileImageListItemBinding.inflate(
-                        LayoutInflater.from(parent.context),
-                        parent,
-                        false
-                    )
-                )
-            }
-            else -> {
-                throw Exception("New View Attached")
-            }
-        }
-
+        return MediaViewHolder(
+            RecyclerFileMediaListItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
-    override fun getItemCount(): Int {
-        return galleryListingModel.size
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return if (galleryListingModel[position].contentType == VIEW_TITLE) {
-            VIEW_TITLE
-        } else {
-            VIEW_MEDIA
-        }
-    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val item = galleryListingModel[position]
-        when (getItemViewType(position)) {
-            VIEW_TITLE -> {
-                (holder as TitleViewHolder).bind(item)
-            }
-            VIEW_MEDIA -> {
-                (holder as MediaViewHolder).bind(item)
+        val item = getItem(holder.bindingAdapterPosition)
+        item?.run {
+            (holder as MediaViewHolder).apply {
+                bind(this@run, galleyItemCallback)
+
             }
         }
     }
 
-    class MediaViewHolder(val binding: RecyclerFileImageListItemBinding) :
+    class MediaViewHolder(val binding: RecyclerFileMediaListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: GalleryListingModel) {
-            binding.apply {
-                executePendingBindings()
-            }
+        fun bind(item: GalleryModel, galleyItemCallback: AppInterface.GalleryOnItemSelect) {
 
-            Glide
-                .with(binding.root)
-                .load(item.data!!.contentUri)
-                .centerCrop()
-                .into(binding.imageView2)
-        }
-
-    }
-
-    class TitleViewHolder(val binding: RecyclerFileTitleItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: GalleryListingModel) {
             binding.apply {
                 dataModel = item
                 executePendingBindings()
             }
+
+            binding.imageViewVideoIcon.isVisible = item.mimeType == "video/mp4"
+
+            Glide
+                .with(binding.root)
+                .load(item.contentUri)
+                .centerCrop()
+                .into(binding.imageView2)
+
+            binding.root.setOnClickListener {
+                galleyItemCallback.onItemClick(item)
+            }
         }
-    }
-
-
-    fun updateDataset(newDataSet: ArrayList<GalleryListingModel>) {
-        val lastItem = galleryListingModel.size - 1
-        galleryListingModel = newDataSet
-        notifyItemRangeInserted(lastItem, newDataSet.size)
     }
 }

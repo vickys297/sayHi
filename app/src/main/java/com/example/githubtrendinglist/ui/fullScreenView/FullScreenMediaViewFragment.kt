@@ -3,6 +3,7 @@ package com.example.githubtrendinglist.ui.fullScreenView
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -22,7 +23,7 @@ internal val TAG = FullScreenMediaViewFragment::class.java.simpleName
 class FullScreenMediaViewFragment(private val datum: Datum) :
     Fragment(R.layout.fragment_full_screen_media_view) {
 
-    private var player: ExoPlayer? = null
+    private var videoPlayer: ExoPlayer? = null
     private lateinit var viewModel: FullScreenMediaViewViewModel
     private lateinit var binding: FragmentFullScreenMediaViewBinding
 
@@ -30,77 +31,62 @@ class FullScreenMediaViewFragment(private val datum: Datum) :
         fun getInstance(datum: Datum) = FullScreenMediaViewFragment(datum)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFullScreenMediaViewBinding.bind(view)
         setViewModel()
-
-
-        binding.imageViewBack.setOnClickListener {
-            if (player != null && player!!.isPlaying) {
-                Log.i(TAG, "onPause: ")
-                player!!.stop()
-                player!!.release()
-                player = null
-            }
-            findNavController().navigateUp()
-        }
 
         setupView(datum)
     }
 
     private fun setupView(datum: Datum) {
         when (datum.file_type) {
+
             AppConstants.FileType.FILE_IMAGE -> {
                 Glide
                     .with(binding.root)
                     .load(datum.file)
                     .fitCenter()
                     .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
-                    .into(binding.imageView)
+                    .into(binding.imageViewPreview)
 
-                binding.imageView.isVisible = true
+                binding.exoPlay.isVisible = false
+                binding.imageViewPreview.isVisible = true
             }
+
             AppConstants.FileType.FILE_VIDEO -> {
-                player = ExoPlayer.Builder(requireContext()).build()
-                val mediaContent = datum.file?.let { MediaItem.fromUri(it) }
-                binding.exoPlay.player = player
-                if (mediaContent != null) {
-                    binding.exoPlay.hideController()
-                    player!!.setMediaItem(mediaContent)
-                    player!!.prepare()
-                    player!!.repeatMode = ExoPlayer.REPEAT_MODE_ALL
+                videoPlayer = ExoPlayer.Builder(requireContext()).build()
+                binding.exoPlay.player = videoPlayer
+                binding.exoPlay.hideController()
+                val mediaItem: MediaItem = MediaItem.fromUri(datum.file!!)
+                videoPlayer?.let {
+                    it.setMediaItem(mediaItem)
+                    it.prepare()
                 }
                 binding.exoPlay.isVisible = true
+                binding.imageViewPreview.isVisible = false
             }
-            else -> {
 
-            }
         }
     }
 
     override fun onResume() {
         super.onResume()
-
-        if (player != null && !player!!.isPlaying) {
-            Log.i(TAG, "onResume: ")
-            player!!.play()
+        if (videoPlayer != null && !videoPlayer!!.isPlaying) {
+            videoPlayer!!.play()
         }
     }
 
     override fun onPause() {
         super.onPause()
-
-        if (player != null && player!!.isPlaying) {
-            Log.i(TAG, "onPause: ")
-            player!!.pause()
+        if (videoPlayer != null && videoPlayer!!.isPlaying) {
+            videoPlayer!!.pause()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.i(TAG, "onDestroy: ")
+        videoPlayer = null
     }
 
     private fun setViewModel() {

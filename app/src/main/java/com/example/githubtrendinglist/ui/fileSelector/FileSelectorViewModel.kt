@@ -1,4 +1,4 @@
-package com.example.githubtrendinglist.ui.imageSelector
+package com.example.githubtrendinglist.ui.fileSelector
 
 import android.content.Context
 import android.util.Log
@@ -8,6 +8,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.githubtrendinglist.model.GalleryListingModel
 import com.example.githubtrendinglist.model.GalleryModel
 import com.example.githubtrendinglist.repository.AppRepository
 import com.example.githubtrendinglist.repository.dataSource.GalleryDataSource

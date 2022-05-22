@@ -2,6 +2,7 @@ package com.example.githubtrendinglist.repository.dataSource
 
 import android.content.ContentUris
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.MediaStore.Files.FileColumns
@@ -11,7 +12,8 @@ import androidx.annotation.WorkerThread
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.githubtrendinglist.model.GalleryModel
-import com.example.githubtrendinglist.model.GalleryPagingModel
+import java.io.File
+import kotlin.collections.ArrayList
 
 internal val TAG = GalleryDataSource::class.java.canonicalName
 
@@ -28,10 +30,10 @@ class GalleryDataSource internal constructor(private val context: Context) :
         try {
             val nextPageNumber = params.key ?: 0
             val response = getGalleryData(nextPageNumber)
-            Log.d(TAG, "load: ${response.data.size}")
+            Log.d(TAG, "load: ${response.size}")
 
             return LoadResult.Page(
-                data = response.data,
+                data = response,
                 prevKey = null, // Only paging forward.
                 nextKey = null
             )
@@ -44,7 +46,7 @@ class GalleryDataSource internal constructor(private val context: Context) :
 
 
     @WorkerThread
-    private fun getGalleryData(nextPageNumber: Int): GalleryPagingModel {
+    private fun getGalleryData(nextPageNumber: Int): ArrayList<GalleryModel> {
 
         val startTime = System.currentTimeMillis()
 
@@ -58,6 +60,7 @@ class GalleryDataSource internal constructor(private val context: Context) :
             FileColumns.MIME_TYPE,
             FileColumns.TITLE,
             FileColumns.SIZE,
+            MediaStore.MediaColumns.DATA,
             FileColumns.VOLUME_NAME,
             FileColumns.DISPLAY_NAME,
         )
@@ -96,11 +99,13 @@ class GalleryDataSource internal constructor(private val context: Context) :
                 "getGalleryData: ${cursor.getColumnIndexOrThrow(FileColumns.VOLUME_NAME)}"
             )
 
+            Log.i(TAG, "getGalleryData: $fileType")
+
             while (cursor.moveToNext()) {
 
                 val id = cursor.getLong(columnId)
                 val name = cursor.getString(nameColumn)
-                val size = cursor.getInt(fileSize)
+                val size = cursor.getFloat(fileSize)
                 val createdAt = cursor.getString(createdDate)
                 val fileDataType = cursor.getInt(fileType)
                 val mimeType = cursor.getString(mimeType)
@@ -118,6 +123,11 @@ class GalleryDataSource internal constructor(private val context: Context) :
                     )
                 }
 
+                val fileData = if (mimeType.contains("video")) {
+                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+                } else {
+                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+                }
                 val newData = GalleryModel(
                     id = id,
                     name = name,
@@ -125,7 +135,8 @@ class GalleryDataSource internal constructor(private val context: Context) :
                     createdAt = createdAt,
                     fileDataType = fileDataType,
                     mimeType = mimeType,
-                    contentUri = contentUri.toString()
+                    contentUri = contentUri.toString(),
+                    fileData = fileData
                 )
                 galleryModelArrayList.add(newData)
             }
@@ -136,6 +147,9 @@ class GalleryDataSource internal constructor(private val context: Context) :
         val endTime = System.currentTimeMillis() - startTime
         Log.i(TAG, "getGalleryData: time in long $endTime Ms")
 
-        return GalleryPagingModel(galleryModelArrayList)
+        Log.i(TAG, "getGalleryData: $galleryModelArrayList")
+
+
+        return galleryModelArrayList.filter { it.mimeType == "video/mp4" || it.mimeType == "image/jpeg" || it.mimeType == "image/jpg" } as ArrayList
     }
 }

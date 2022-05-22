@@ -18,7 +18,6 @@ class VideoViewHolder(private val binding: RecyclerMediaVideoItemBinding) :
 
     fun bind(media: Datum): RecyclerMediaVideoItemBinding {
 
-//        mediaItem = MediaItem.fromUri(media.file!!)
         binding.apply {
             executePendingBindings()
         }

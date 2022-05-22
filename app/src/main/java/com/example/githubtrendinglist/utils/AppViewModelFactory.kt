@@ -3,7 +3,7 @@ package com.example.githubtrendinglist.utils
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.githubtrendinglist.repository.AppRepository
-import com.example.githubtrendinglist.ui.imageSelector.FileSelectorViewModel
+import com.example.githubtrendinglist.ui.fileSelector.FileSelectorViewModel
 import com.example.githubtrendinglist.ui.RepositoryListViewModel
 import com.example.githubtrendinglist.ui.fullScreenView.FullScreenMediaViewViewModel
 import com.example.githubtrendinglist.ui.uploadVideo.UploadVideoViewModel

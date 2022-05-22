@@ -25,11 +25,7 @@ class MediaListPagingSource(private val mediaAPI: MediaAPI) :
                 LoadResult.Page(
                     data = data!!,
                     prevKey = null,
-                    nextKey = if (data.last().id != nextPageNumber) {
-                        data.last().id
-                    } else {
-                        null
-                    }
+                    nextKey = nextPageNumber + 1
                 )
             } else {
                 LoadResult.Page(

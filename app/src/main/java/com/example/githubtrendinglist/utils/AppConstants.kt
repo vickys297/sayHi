@@ -1,9 +1,10 @@
 package com.example.githubtrendinglist.utils
 
 object AppConstants {
+
     object Network {
         const val VERIFY_WEBSITE: String = "https://nextgenerationsocialnetwork.com"
-        const val BASE_URL = "https://nextgenerationsocialnetwork.com/"
+        const val BASE_URL = "https://nextgenerationsocialnetwork.com/user_details/"
     }
 
     object NavigationKey {
@@ -19,7 +20,7 @@ object AppConstants {
     }
 
     object File {
-        const val FILE_LIMIT = 2097152000F
+        const val FILE_LIMIT = 209715200F
     }
 
     object RequestCode {

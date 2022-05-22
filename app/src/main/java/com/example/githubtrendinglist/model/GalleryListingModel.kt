@@ -2,7 +2,7 @@ package com.example.githubtrendinglist.model
 
 data class GalleryListingModel(
     val contentType: Int,
-    val name: String = "",
+    val dateTime: String = "",
     val data: GalleryModel? = null
 )
 

@@ -4,48 +4,24 @@ import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
 
-data class FileModel(
-    val id: Long,
-    val name: String,
-    val fileDataType: Int,
-    val size: Long,
-    val createdAt: String?,
-    val mimeType: String,
-    val contentUri: Uri?
-) : Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readLong(),
-        parcel.readString()!!,
-        parcel.readInt(),
-        parcel.readLong(),
-        parcel.readString(),
-        parcel.readString()!!,
-        parcel.readParcelable(Uri::class.java.classLoader)!!
-    ) {
+data class FileUploadResponseModel(
+    val result: String,
+    val data: ArrayList<ResultData>,
+    val message: String,
+    val statusCode: String
+) {
+    data class ResultData(
+        val result: String,
+        val file_type: String
+    )
+}
+
+
+sealed class FileUploadResponse {
+    data class Success(val result: FileUploadResponseModel.ResultData) : FileUploadResponse()
+    data class Failure(val message: String) : FileUploadResponse()
+
+    sealed class HttpErrorCode : FileUploadResponse() {
+        data class Exception(val exception: String) : FileUploadResponse()
     }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeLong(id)
-        parcel.writeString(name)
-        parcel.writeInt(fileDataType)
-        parcel.writeLong(size)
-        parcel.writeString(createdAt)
-        parcel.writeString(mimeType)
-        parcel.writeParcelable(contentUri, flags)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<FileModel> {
-        override fun createFromParcel(parcel: Parcel): FileModel {
-            return FileModel(parcel)
-        }
-
-        override fun newArray(size: Int): Array<FileModel?> {
-            return arrayOfNulls(size)
-        }
-    }
-
 }

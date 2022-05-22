@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.githubtrendinglist.R
 import com.example.githubtrendinglist.adapters.FullScreenAdapter
@@ -32,8 +33,7 @@ class ViewPagerFragment : Fragment(R.layout.fragment_view_pager) {
 
     private lateinit var currentMediaItem: Datum
 
-    private var listSize = 0
-    private var isLastItem = false
+    private var listSize = 1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -48,7 +48,6 @@ class ViewPagerFragment : Fragment(R.layout.fragment_view_pager) {
         fullScreenAdapter = FullScreenAdapter(requireActivity().supportFragmentManager, lifecycle)
         binding.viewPager.adapter = fullScreenAdapter
 
-
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
                 position: Int,
@@ -56,28 +55,26 @@ class ViewPagerFragment : Fragment(R.layout.fragment_view_pager) {
                 positionOffsetPixels: Int
             ) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                if (position > listSize - 3 && !isLastItem) {
+                if (position > listSize - 3 && listSize > 3) {
                     getMediaList()
                 }
             }
         })
+
+        binding.imageButtonBack.setOnClickListener {
+            findNavController().navigateUp()
+        }
+
+
+        viewModel.mutableMediaList.postValue(arrayListOf(currentMediaItem))
         getMediaList()
     }
 
     private fun setupObservers() {
         observerMediaList = Observer { it ->
-            if (currentMediaItem.id != it.last().id) {
-                val fragmentList =
-                    it.map { FullScreenMediaViewFragment.getInstance(it) } as ArrayList
-                fragmentList.add(FullScreenMediaViewFragment.getInstance(currentMediaItem))
-                fullScreenAdapter.updateDataSet(fragmentList)
-                it?.let {
-                    currentMediaItem = it.last()
-                    listSize += it.size
-                }
-            } else {
-                isLastItem = true
-            }
+            val fragmentList = it.map { FullScreenMediaViewFragment.getInstance(it) } as ArrayList
+            fullScreenAdapter.updateDataSet(fragmentList)
+            listSize += fragmentList.size
         }
         viewModel.mutableMediaList.observe(viewLifecycleOwner, observerMediaList)
     }
