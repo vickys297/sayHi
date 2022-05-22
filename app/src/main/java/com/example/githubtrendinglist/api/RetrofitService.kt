@@ -1,4 +1,4 @@
-package com.example.githubtrendinglist.network
+package com.example.githubtrendinglist.api
 
 import com.example.githubtrendinglist.utils.AppConstants
 import okhttp3.OkHttpClient
@@ -6,10 +6,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HttpsURLConnection
 
 class RetrofitServices {
-
 
     private var retrofit: Retrofit.Builder
 

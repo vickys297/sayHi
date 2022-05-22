@@ -7,7 +7,26 @@
 
     <fragment
         android:id="@+id/repositoryList"
-        android:name="com.example.githubtrendinglist.ui.RepositoryList"
+        android:name="com.example.githubtrendinglist.ui.MediaList"
         android:label="fragment_repository_list"
-        tools:layout="@layout/fragment_repository_list" />
+        tools:layout="@layout/fragment_media_list" >
+        <action
+            android:id="@+id/action_repositoryList_to_viewPagerFragment"
+            app:destination="@id/viewPagerFragment" />
+        <action
+            android:id="@+id/action_repositoryList_to_fileSelectorFragment"
+            app:destination="@id/fileSelectorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/viewPagerFragment"
+        android:name="com.example.githubtrendinglist.ui.viewPager.ViewPagerFragment"
+        android:label="ViewPagerFragment" />
+    <fragment
+        android:id="@+id/uploadVideoFragment"
+        android:name="com.example.githubtrendinglist.ui.uploadVideo.UploadVideoFragment"
+        android:label="UploadVideoFragment" />
+    <fragment
+        android:id="@+id/fileSelectorFragment"
+        android:name="com.example.githubtrendinglist.ui.imageSelector.FileSelectorFragment"
+        android:label="FileSelectorFragment" />
 </navigation>
