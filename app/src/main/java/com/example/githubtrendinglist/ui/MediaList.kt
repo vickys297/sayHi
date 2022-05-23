@@ -138,13 +138,10 @@ class MediaList : Fragment(R.layout.fragment_media_list), View.OnClickListener {
                         "File Removed successfully",
                         Toast.LENGTH_SHORT
                     ).show()
-
                     mediaListAdapter.removeItem(bindingAdapterPosition)
                 }
                 is FileUploadResponse.Failure -> {
                     Snackbar.make(binding.root, response.message, Snackbar.LENGTH_SHORT).show()
-
-                    mediaListAdapter.removeItem(bindingAdapterPosition)
                 }
 
                 is FileUploadResponse.HttpErrorCode.Exception -> {
