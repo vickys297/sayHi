@@ -67,7 +67,45 @@ class AppRepository {
                 if (data == null) {
                     FileUploadResponse.Failure("No data found")
                 } else {
-                    FileUploadResponse.Success(data.data[0])
+                    if (data.data == null) {
+                        FileUploadResponse.Failure(data.message)
+                    } else {
+                        FileUploadResponse.Success(data.data[0])
+                    }
+                }
+            } else {
+                when (response.code()) {
+                    400 -> FileUploadResponse.HttpErrorCode.Exception("Bad Request")
+                    403 -> FileUploadResponse.HttpErrorCode.Exception("Access to resource is forbidden")
+                    404 -> FileUploadResponse.HttpErrorCode.Exception("Resource not found")
+                    500 -> FileUploadResponse.HttpErrorCode.Exception("Internal server error")
+                    502 -> FileUploadResponse.HttpErrorCode.Exception("Bad Gateway")
+                    301 -> FileUploadResponse.HttpErrorCode.Exception("Resource has been removed permanently")
+                    302 -> FileUploadResponse.HttpErrorCode.Exception("Resource moved, but has been found")
+                    else -> FileUploadResponse.HttpErrorCode.Exception("Something went wrong")
+                }
+            }
+
+        } catch (e: Exception) {
+            FileUploadResponse.HttpErrorCode.Exception(e.message!!)
+        } catch (e: IOException) {
+            FileUploadResponse.HttpErrorCode.Exception(e.message!!)
+        }
+    }
+
+    suspend fun deleteMediaItem(id: String): FileUploadResponse {
+        return try {
+            val response = mediaAPI.deleteMediaItem(id)
+            if (response.isSuccessful) {
+                val data = response.body()
+                if (data == null) {
+                    FileUploadResponse.Failure("Unable to delete, please try again.")
+                } else {
+                    if (data.data == null) {
+                        FileUploadResponse.Failure(data.message)
+                    } else {
+                        FileUploadResponse.Success(data.data[0])
+                    }
                 }
             } else {
                 when (response.code()) {

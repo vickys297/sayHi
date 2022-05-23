@@ -20,4 +20,7 @@ interface MediaAPI {
         @Part fileToUpload: MultipartBody.Part,
         @Part(value = "fileType") fileType: RequestBody
     ): Response<FileUploadResponseModel>
+
+    @POST("delete.php")
+    suspend fun deleteMediaItem(@Query("id") id: String): Response<FileUploadResponseModel>
 }

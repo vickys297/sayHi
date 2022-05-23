@@ -75,21 +75,37 @@ class MediaListAdapter(private val callback: AppInterface.MediaItemCallback) :
                                 holder.bindingAdapterPosition
                             )
                         }
+
+                        root.setOnLongClickListener {
+                            callback.onDeleteItem(
+                                item,
+                                holder.bindingAdapterPosition,
+                            )
+                            false
+                        }
                     }
                 }
                 VIEW_VIDEO -> {
-                    (holder as VideoViewHolder).bind(item).apply {
-                        root.setOnClickListener {
-                            callback.onItemClick(
-                                item,
-                                holder.bindingAdapterPosition
-                            )
-                        }
-                    }
+                    (holder as VideoViewHolder).bind(item)
                 }
                 else -> {
                     throw java.lang.Exception("No view available")
                 }
+            }
+
+            holder.itemView.setOnClickListener {
+                callback.onItemClick(
+                    item,
+                    holder.bindingAdapterPosition
+                )
+            }
+
+            holder.itemView.setOnLongClickListener {
+                callback.onDeleteItem(
+                    item,
+                    holder.bindingAdapterPosition,
+                )
+                false
             }
         }
     }
@@ -100,6 +116,10 @@ class MediaListAdapter(private val callback: AppInterface.MediaItemCallback) :
             VIEW_IMAGE
         else
             VIEW_VIDEO
+    }
+
+    fun removeItem(bindingAdapterPosition: Int) {
+        notifyItemRemoved(bindingAdapterPosition)
     }
 
 

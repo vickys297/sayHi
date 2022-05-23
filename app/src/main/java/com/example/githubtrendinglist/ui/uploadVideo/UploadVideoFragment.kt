@@ -1,5 +1,6 @@
 package com.example.githubtrendinglist.ui.uploadVideo
 
+import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -21,6 +22,7 @@ import com.example.githubtrendinglist.databinding.FragmentUploadVideoBinding
 import com.example.githubtrendinglist.model.FileUploadResponse
 import com.example.githubtrendinglist.model.GalleryModel
 import com.example.githubtrendinglist.utils.AppConstants
+import com.example.githubtrendinglist.utils.AppFunctions
 import com.example.githubtrendinglist.utils.AppViewModelFactory
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -224,11 +226,6 @@ class UploadVideoFragment : Fragment(R.layout.fragment_upload_video) {
             Log.i(TAG, "uploadFile: $response")
             when (response) {
                 is FileUploadResponse.Success -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "File Uploaded successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
 
                     if (videoPlayer != null) {
                         videoPlayer!!.stop()
@@ -237,11 +234,19 @@ class UploadVideoFragment : Fragment(R.layout.fragment_upload_video) {
 
                     destinationFile.delete()
 
-                    findNavController().navigateUp()
+                    AppFunctions.showAlertDialog(
+                        context = requireContext(),
+                        message = "File Uploaded successfully",
+                        positiveButtonName = "Ok",
+                        onPositiveClick = { dialog, p1 ->
+                            dialog.dismiss()
+                            findNavController().navigateUp()
+                        }
+                    )
+
                 }
                 is FileUploadResponse.Failure -> {
                     Snackbar.make(binding.root, response.message, Snackbar.LENGTH_SHORT).show()
-
                     binding.buttonUpload.isEnabled = true
                     binding.buttonUpload.text = getString(R.string.upload)
                 }

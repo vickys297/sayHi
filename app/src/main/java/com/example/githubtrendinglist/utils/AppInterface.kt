@@ -7,6 +7,7 @@ interface AppInterface {
 
     interface MediaItemCallback {
         fun onItemClick(item: Datum, position: Int)
+        fun onDeleteItem(item: Datum, bindingAdapterPosition: Int)
     }
 
     interface GalleryOnItemSelect {

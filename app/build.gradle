@@ -68,6 +68,6 @@ dependencies {
         exclude group: 'org.aspectj', module: 'aspectjrt'
     }
     implementation 'id.zelory:compressor:3.0.1'
-
+    implementation 'com.airbnb.android:lottie:5.1.1'
     implementation 'com.github.AbedElazizShe:LightCompressor:1.1.1'
 }

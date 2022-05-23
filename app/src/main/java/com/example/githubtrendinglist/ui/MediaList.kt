@@ -11,16 +11,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.githubtrendinglist.R
 import com.example.githubtrendinglist.adapters.AdapterLoadState
 import com.example.githubtrendinglist.adapters.MediaListAdapter
 import com.example.githubtrendinglist.databinding.FragmentMediaListBinding
 import com.example.githubtrendinglist.model.Datum
+import com.example.githubtrendinglist.model.FileUploadResponse
 import com.example.githubtrendinglist.utils.AppConstants
+import com.example.githubtrendinglist.utils.AppFunctions
 import com.example.githubtrendinglist.utils.AppInterface
 import com.example.githubtrendinglist.utils.AppViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -38,7 +40,29 @@ class MediaList : Fragment(R.layout.fragment_media_list), View.OnClickListener {
             bundle.putParcelable(AppConstants.NavigationKey.DATUM_KEY, item)
             findNavController().navigate(R.id.action_repositoryList_to_viewPagerFragment, bundle)
         }
+
+        override fun onDeleteItem(
+            item: Datum,
+            bindingAdapterPosition: Int
+        ) {
+
+            AppFunctions.showAlertDialog(
+                requireContext(), "Do you want to delete this item",
+                positiveButtonName = "Yes",
+                negativeButtonName = "No",
+                onPositiveClick = { dialog, p1 ->
+                    deleteMediaItem(item, bindingAdapterPosition)
+                    dialog!!.dismiss()
+                },
+                onNegativeClick = { dialog, p1 ->
+                    dialog.dismiss()
+                },
+                canCancel = false
+            )
+
+        }
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -53,21 +77,6 @@ class MediaList : Fragment(R.layout.fragment_media_list), View.OnClickListener {
                 header = AdapterLoadState { mediaListAdapter.retry() },
                 footer = AdapterLoadState { mediaListAdapter.retry() }
             )
-            addOnChildAttachStateChangeListener(object :
-                RecyclerView.OnChildAttachStateChangeListener {
-                override fun onChildViewAttachedToWindow(view: View) {
-//                    if (findContainingViewHolder(view)?.itemViewType == 1) {
-//                        (findContainingViewHolder(view) as VideoViewHolder).startPlayer()
-//                    }
-                }
-
-                override fun onChildViewDetachedFromWindow(view: View) {
-//                    if (findContainingViewHolder(view)?.itemViewType == 1) {
-//                        (findContainingViewHolder(view) as VideoViewHolder).stopAndReleasePlayer()
-//                    }
-                }
-
-            })
         }
 
         binding.buttonPost.setOnClickListener(this@MediaList)
@@ -115,6 +124,31 @@ class MediaList : Fragment(R.layout.fragment_media_list), View.OnClickListener {
             when (id.id) {
                 binding.buttonPost.id -> {
                     findNavController().navigate(R.id.action_repositoryList_to_fileSelectorFragment)
+                }
+            }
+        }
+    }
+
+    private fun deleteMediaItem(item: Datum, bindingAdapterPosition: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (val response = viewModel.deleteMediaItem(item.id)) {
+                is FileUploadResponse.Success -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "File Removed successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    mediaListAdapter.removeItem(bindingAdapterPosition)
+                }
+                is FileUploadResponse.Failure -> {
+                    Snackbar.make(binding.root, response.message, Snackbar.LENGTH_SHORT).show()
+
+                    mediaListAdapter.removeItem(bindingAdapterPosition)
+                }
+
+                is FileUploadResponse.HttpErrorCode.Exception -> {
+                    Snackbar.make(binding.root, response.exception, Snackbar.LENGTH_SHORT).show()
                 }
             }
         }

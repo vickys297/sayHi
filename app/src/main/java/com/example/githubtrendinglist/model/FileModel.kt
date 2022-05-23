@@ -6,7 +6,7 @@ import android.os.Parcelable
 
 data class FileUploadResponseModel(
     val result: String,
-    val data: ArrayList<ResultData>,
+    val data: ArrayList<ResultData>?,
     val message: String,
     val statusCode: String
 ) {
